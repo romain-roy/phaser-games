@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="assets/favicon.ico" />
+	<title>TP Phaser : Montage du robot 4</title>
+	<link rel="stylesheet" href="assets/style.css">
+	<script src="assets/phaser.min.js"></script>
+</head>
+
+<body>
+
+	<script>
+
+		var config = {
+			title: 'TP Phaser : Montage du robot 4',
+			version: '1.0',
+			width: 800,
+			height: 600,
+			backgroundColor: 'd0d0d0',
+			scene: { preload: preload, create: create }
+		};
+
+		var game = new Phaser.Game(config);
+
+		var parts = {
+			'head': { x: 0, y: -90 },
+			'leftArm': { x: -65, y: 10 },
+			'rightArm': { x: 65, y: 10 },
+			'feet': { x: 0, y: 63 }
+		};
+
+		var partsNames = Object.keys(parts);
+
+		var partDisplay, robot;
+
+		function preload() {
+			this.load.image('body', 'assets/sprites/robot_body.png');
+			this.load.image('head', 'assets/sprites/robot_head.png');
+			this.load.image('leftArm', 'assets/sprites/left_arm.png');
+			this.load.image('rightArm', 'assets/sprites/right_arm.png');
+			this.load.image('feet', 'assets/sprites/robot_feet.png');
+		}
+
+		function create() {
+			// Texte
+			partDisplay = this.add.text(10, 10, '-', {
+				fontFamily: 'Arial',
+				fontSize: 32,
+				color: 'black'
+			});
+
+			// Container robot
+			robot = this.add.container(game.config.width / 2, game.config.height / 2);
+			let body = this.add.sprite(0, 0, 'body');
+			robot.add(body);
+			robot.setSize(body.width, body.height);
+			robot.setInteractive({ cursor: 'grab' });
+			this.input.setDraggable(robot);
+
+			// Fonction drag
+			this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+				gameObject.x = dragX;
+				gameObject.y = dragY;
+			});
+
+			// Ajout des pièces
+			for (let i = 0; i < partsNames.length; i++) {
+				let part = this.add.sprite(
+					Phaser.Math.RND.between(0, game.config.width),
+					Phaser.Math.RND.between(0, game.config.height),
+					partsNames[i]
+				);
+				part.name = partsNames[i];
+				part.setInteractive({ cursor: 'pointer', pixelPerfect: true });
+				part.on('pointerover', display);
+				part.on('pointerout', function () { partDisplay.setText('-'); });
+				part.on('pointerdown', move);
+			}
+		}
+
+		function display(e) {
+			partDisplay.setText(this.name);
+		}
+
+		function move(e) {
+			var coords = parts[this.name];
+			robot.addAt(this, 0);
+			this.setPosition(coords.x, coords.y);
+			partDisplay.setText('-');
+			this.disableInteractive();
+			this.removeAllListeners();
+		}
+
+	</script>
+
+</body>
+
+</html>
