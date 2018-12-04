@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<link rel="icon" href="assets/favicon.ico" />
-	<title>TP Phaser : Montage du robot 7</title>
+	<title>TP Phaser : Montage du robot 8</title>
 	<link rel="stylesheet" href="assets/style.css">
 	<script src="assets/phaser.min.js"></script>
 </head>
@@ -14,33 +14,65 @@
 	<script>
 
 		var config = {
-			title: 'TP Phaser : Montage du robot 7',
+			title: 'TP Phaser : Montage du robot 8',
 			version: '1.0',
 			width: 800,
 			height: 600,
 			backgroundColor: 'd0d0d0',
-			scene: { preload: preload, create: create, update: update },
+			scene: { preload: preload, create: create },
 			physics: { default: 'arcade', arcade: { debug: false } }
 		};
 
 		var game = new Phaser.Game(config);
 
 		var parts = {
-			'head': { type: 'head', position: { x: 0, y: -35 }, origin: { x: 0.5, y: 1 } },
-			'head_alt': { type: 'head', position: { x: 0, y: -35 }, origin: { x: 0.5, y: 1 } },
-			'leftArm': { type: 'left', position: { x: -30, y: -35 }, origin: { x: 1, y: 0 } },
-			'leftArm_alt': { type: 'left', position: { x: -30, y: -35 }, origin: { x: 1, y: 0 } },
-			'rightArm': { type: 'right', position: { x: 30, y: -35 }, origin: { x: 0, y: 0 } },
-			'rightArm_alt': { type: 'right', position: { x: 30, y: -35 }, origin: { x: 0, y: 0 } },
-			'feet': { type: 'feet', position: { x: 0, y: 35 }, origin: { x: 0.5, y: 0 } },
-			'wheel': { type: 'feet', position: { x: 0, y: 35 }, origin: { x: 0.5, y: 0 } },
+			types: {
+				head: {
+					specimen: ['head', 'head_alt'],
+					origin: { x: 0.5, y: 1 },
+					position: { x: 0, y: -35 }
+				},
+				left: {
+					specimen: ['leftArm', 'leftArm_alt'],
+					origin: { x: 1, y: 0 },
+					position: { x: -30, y: -35 }
+				},
+				right: {
+					specimen: ['rightArm', 'rightArm_alt'],
+					origin: { x: 0, y: 0 },
+					position: { x: 30, y: -35 }
+				},
+				feet: {
+					specimen: ['feet', 'wheel'],
+					origin: { x: 0.5, y: 0 },
+					position: { x: 0, y: 35 }
+				}
+			},
+			specimen: {
+				head: { type: 'head' },
+				head_alt: { type: 'head' },
+				leftArm: { type: 'left' },
+				leftArm_alt: { type: 'left' },
+				rightArm: { type: 'right' },
+				rightArm_alt: { type: 'right' },
+				feet: { type: 'feet' },
+				wheel: { type: 'feet' }
+			}
 		};
 
-		var partsNames = Object.keys(parts);
+		var robot = {
+			container: undefined,
+			parts: {
+				head: { expected: undefined, actual: undefined },
+				left: { expected: undefined, actual: undefined },
+				right: { expected: undefined, actual: undefined },
+				feet: { expected: undefined, actual: undefined }
+			},
+			partsMounted: 0,
+			correct: true
+		}
 
-		var remainingParts = ['head', 'left', 'right', 'feet'];
-
-		var partDisplay, robot, partsGroup, correct, incorrect;
+		var partDisplay, correct, incorrect;
 
 		function preload() {
 			this.load.image('body', 'assets/sprites/robot_body.png');
@@ -53,11 +85,13 @@
 			this.load.image('feet', 'assets/sprites/robot_feet.png');
 			this.load.image('wheel', 'assets/sprites/robot_wheel.png');
 			this.load.image('gear', 'assets/sprites/gear.png');
+			this.load.image('tv', 'assets/sprites/tv.png');
 			this.load.audio('correct', 'assets/sfx/correct.ogg');
 			this.load.audio('incorrect', 'assets/sfx/incorrect.ogg');
 		}
 
 		function create() {
+
 			// Texte
 			partDisplay = this.add.text(10, 10, 'Assemblage en cours', {
 				fontFamily: 'Arial',
@@ -80,27 +114,41 @@
 			graphics.strokeLineShape(line2);
 
 			// Container robot
-			robot = this.add.container(game.config.width / 2, game.config.height / 3 * 2);
+			robot.container = this.add.container(game.config.width / 2, game.config.height / 3 * 2);
 			let body = this.add.sprite(0, 0, 'body');
-			robot.add(body);
-			robot.setSize(body.width, body.height);
-			robot.setInteractive({ cursor: 'grab' });
-			this.input.setDraggable(robot);
-			this.physics.world.enable(robot);
+			robot.container.add(body);
+			robot.container.setSize(body.width, body.height);
+			robot.container.setInteractive({ cursor: 'grab' });
+			this.input.setDraggable(robot.container);
+			this.physics.world.enable(robot.container);
 
 			// Fonctions drag
+			let partsGroup;
 			this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
 				gameObject.x = dragX;
 				gameObject.y = dragY;
 			});
 			this.input.on('dragend', function (pointer, gameObject) {
-				this.physics.overlap(robot, partsGroup, assembler, null, this);
-				robot.setPosition(game.config.width / 2, game.config.height / 3 * 2);
+				this.physics.overlap(robot.container, partsGroup, assembler, null, this);
+				robot.container.setPosition(game.config.width / 2, game.config.height / 3 * 2);
 			}, this);
 			partsGroup = this.physics.add.group();
 
+			// Ajout de la TV
+			this.add.image(100, 500, 'tv');
+			model = this.add.container(100, 500).setScale(0.4);
+			model.add(this.add.sprite(0, 0, 'body'));
+			for (type in parts.types) {
+				let rand = Phaser.Utils.Array.GetRandom(parts.types[type].specimen);
+				let part = this.add.sprite(0, 0, rand);
+				part.setPosition(parts.types[type].position.x, parts.types[type].position.y);
+				part.setOrigin(parts.types[type].origin.x, parts.types[type].origin.y);
+				model.addAt(part, 0);
+				robot.parts[type].expected = rand;
+			}
+
 			// Ajout des pièces
-			let pool = partsNames.slice();
+			let pool = Object.keys(parts.specimen).slice();
 			let timedEvent = this.time.addEvent({
 				delay: 1500,
 				callback: function () {
@@ -127,25 +175,34 @@
 			});
 		}
 
-		function update() { }
+		function assembler(robotContainer, part) {
+			let type = parts.specimen[part.name].type;
+			let info = parts.types[type];
 
-		function assembler(robot, part) {
-			let info = parts[part.name];
-			
 			// Si le composant est déjà assemblé
-			if (remainingParts.indexOf(info.type) == -1) {
+			if (robot.parts[type].actual != undefined) {
 				incorrect.play();
 				return;
 			}
+
+			// Mise à jour de robot
+			robot.parts[type].actual = part.name;
+			robot.partsMounted++;
+			robot.correct &= part.name == robot.parts[type].expected;
+			robotContainer.addAt(part, 0);
+
 			correct.play();
-			remainingParts.splice(remainingParts.indexOf(info.type), 1);
+
+			// Placement de la pièce
 			part.anim.stop();
-			robot.addAt(part, 0);
 			part.setOrigin(info.origin.x, info.origin.y);
 			part.setPosition(info.position.x, info.position.y);
 			part.body.destroy();
 			part.disableInteractive();
-			if (remainingParts.length == 0) partDisplay.setText('Robot terminé !');
+			if (robot.partsMounted == 4) {
+				if (robot.correct) partDisplay.setText('Robot conforme !');
+				else partDisplay.setText('Robot non conforme !!!');
+			}
 		}
 
 	</script>

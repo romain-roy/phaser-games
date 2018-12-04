@@ -57,8 +57,8 @@
 			let rollingGroup = this.physics.add.group({ angularVelocity: 300 });
 			let posX = [100, 400, 700];
 			for (i in posX) rollingGroup.create(posX[i], 180, 'gear');
-			let line1 = new Phaser.Geom.Line(0, 180 - 21 + 2, game.config.width, 180 - 21 + 2);
-			let line2 = new Phaser.Geom.Line(0, 180 + 21 - 2, game.config.width, 180 + 21 - 2);
+			let line1 = new Phaser.Geom.Line(0, 161, game.config.width, 161);
+			let line2 = new Phaser.Geom.Line(0, 199, game.config.width, 199);
 			let graphics = this.add.graphics({ lineStyle: { width: 4, color: 'black' } });
 			graphics.strokeLineShape(line1);
 			graphics.strokeLineShape(line2);
