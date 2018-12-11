@@ -19,7 +19,7 @@
 			width: 800,
 			height: 600,
 			backgroundColor: 'd0d0d0',
-			scene: { preload: preload, create: create, update: update },
+			scene: { preload: preload, create: create },
 			physics: { default: 'arcade', arcade: { debug: false } }
 		};
 
@@ -126,8 +126,6 @@
 				loop: true
 			});
 		}
-
-		function update() { }
 
 		function assembler(robot, part) {
 			let info = parts[part.name];
