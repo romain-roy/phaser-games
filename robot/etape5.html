@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="assets/favicon.ico" />
+	<title>TP Phaser : Montage du robot 5</title>
+	<link rel="stylesheet" href="assets/style.css">
+	<script src="assets/phaser.min.js"></script>
+</head>
+
+<body>
+
+	<script>
+
+		var config = {
+			title: 'TP Phaser : Montage du robot 5',
+			version: '1.0',
+			width: 800,
+			height: 600,
+			backgroundColor: 'd0d0d0',
+			scene: { preload: preload, create: create },
+			physics: { default: 'arcade', arcade: { debug: false } }
+		};
+
+		var game = new Phaser.Game(config);
+
+		var parts = {
+			'head': { x: 0, y: -90 },
+			'leftArm': { x: -65, y: 10 },
+			'rightArm': { x: 65, y: 10 },
+			'feet': { x: 0, y: 63 }
+		};
+
+		var partsNames = Object.keys(parts);
+
+		var partDisplay, robot, partsGroup;
+
+		function preload() {
+			this.load.image('body', 'assets/sprites/robot_body.png');
+			this.load.image('head', 'assets/sprites/robot_head.png');
+			this.load.image('leftArm', 'assets/sprites/left_arm.png');
+			this.load.image('rightArm', 'assets/sprites/right_arm.png');
+			this.load.image('feet', 'assets/sprites/robot_feet.png');
+		}
+
+		function create() {
+			// Texte
+			partDisplay = this.add.text(10, 10, 'Assemblage en cours', {
+				fontFamily: 'Arial',
+				fontSize: 32,
+				color: 'black'
+			});
+
+			// Container robot
+			robot = this.add.container(game.config.width / 2, game.config.height / 3 * 2);
+			let body = this.add.sprite(0, 0, 'body');
+			robot.add(body);
+			robot.setSize(body.width, body.height);
+			robot.setInteractive({ cursor: 'grab' });
+			this.input.setDraggable(robot);
+			this.physics.world.enable(robot);
+
+			// Fonctions drag
+			this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+				gameObject.x = dragX;
+				gameObject.y = dragY;
+			});
+			this.input.on('dragend', function (pointer, gameObject) {
+				this.physics.overlap(robot, partsGroup, assembler, null, this);
+				robot.setPosition(game.config.width / 2, game.config.height / 3 * 2);
+			}, this);
+			partsGroup = this.physics.add.staticGroup();
+
+			// Ajout des pièces
+			for (let i = 0; i < partsNames.length; i++) {
+				let part = this.add.sprite(100 + i * 200, 130, partsNames[i]);
+				part.name = partsNames[i];
+				partsGroup.add(part);
+			}
+		}
+
+		function assembler(robot, part) {
+			let coords = parts[part.name];
+			robot.addAt(part, 0);
+			part.setPosition(coords.x, coords.y);
+			part.disableInteractive();
+			part.removeAllListeners();
+			partsGroup.remove(part);
+			if (partsGroup.getLength() == 0) partDisplay.setText('Robot terminé !');
+		}
+
+	</script>
+
+</body>
+
+</html>

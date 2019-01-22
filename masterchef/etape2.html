@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="favicon.ico" />
+	<title>TP Phaser : Masterchef</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="phaser.min.js"></script>
+	<script src="objets.js"></script>
+</head>
+
+<body>
+
+	<script>
+
+		var config = {
+			title: 'TP Phaser : Masterchef',
+			version: '2.0',
+			width: 800,
+			height: 600,
+			backgroundColor: 'ffffff',
+			scene: { preload: preload, create: create },
+			physics: { default: 'arcade', arcade: { debug: false } }
+		};
+
+		var game = new Phaser.Game(config);
+
+		function preload() {
+			this.load.image('cuisine', 'assets/scène.png');
+			for (let o in objets)
+				this.load.spritesheet(o, objets[o].image.src, {
+					frameWidth: objets[o].image.dimX,
+					frameHeight: objets[o].image.dimY
+				});
+		}
+
+		function create() {
+			this.add.image(0, 0, 'cuisine').setOrigin(0, 0);
+
+			let texte = this.add.text(10, 590, '', {
+				fontFamily: 'Arial',
+				fontSize: 32,
+				color: '#000'
+			}).setOrigin(0, 1);
+			let utiliser = null;
+			let sprites = this.add.group();
+
+			for (let o in objets) {
+				let sprite = this.add.sprite(objets[o].x, objets[o].y, o, 0);
+				sprite.setInteractive({ cursor: 'pointer' });
+				this.physics.world.enable(sprite);
+				sprites.add(sprite);
+
+				if (o != 'casserole') {
+					sprite.on('pointerover', function () {
+						if (utiliser == null) {
+							if (objets[o].type == 'électroménager') texte.setText('Utiliser ' + objets[o].nom);
+							else texte.setText('Utiliser ' + objets[o].nom + ' avec...');
+						} else texte.setText('Utiliser ' + utiliser + ' avec ' + objets[o].nom);
+					}, sprite);
+
+					sprite.on('pointerdown', function () {
+						if (utiliser == null) {
+							if (objets[o].type != 'électroménager') utiliser = objets[o].nom;
+							else this.setFrame(1);
+						} else utiliser = null;
+					}, sprite);
+
+					sprite.on('pointerout', function () {
+						if (utiliser == null) texte.setText('');
+						else texte.setText('Utiliser ' + utiliser + ' avec...');
+					}, sprite);
+				} else this.input.setDraggable(sprite);
+			}
+
+			this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+				gameObject.x = dragX;
+				gameObject.y = dragY;
+			});
+
+			this.input.on('dragend', function (pointer, gameObject) {
+				this.physics.overlap(gameObject, sprites, function (a, b) {
+					if (b.texture.key == 'cuisson' && b.frame.name == 1) a.setFrame(2);
+					else a.setPosition(objets[a.texture.key].x, objets[a.texture.key].y);
+				}, null, this);
+			}, this);
+
+		}
+
+	</script>
+
+</body>
+
+</html>

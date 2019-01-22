@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="favicon.ico" />
+	<title>TP Phaser : Masterchef</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="phaser.min.js"></script>
+	<script src="objets.js"></script>
+</head>
+
+<body>
+
+	<script>
+
+		var config = {
+			title: 'TP Phaser : Masterchef',
+			version: '1.0',
+			width: 800,
+			height: 600,
+			backgroundColor: 'ffffff',
+			scene: { preload: preload, create: create }
+		};
+
+		var game = new Phaser.Game(config);
+
+		function preload() {
+			this.load.image('cuisine', 'assets/scène.png');
+			for (let o in objets)
+				this.load.spritesheet(o, objets[o].image.src, {
+					frameWidth: objets[o].image.dimX,
+					frameHeight: objets[o].image.dimY
+				});
+		}
+
+		function create() {
+			this.add.image(0, 0, 'cuisine').setOrigin(0, 0);
+			for (let o in objets) {
+				let sprite = this.add.sprite(objets[o].x, objets[o].y, o, 0);
+				sprite.setInteractive({ cursor: 'pointer' });
+				sprite.on('pointerdown', function () {
+					this.setFrame((this.frame.name + 1) % objets[o].image.clés);
+				}, sprite);
+			}
+		}
+
+	</script>
+
+</body>
+
+</html>

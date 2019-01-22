@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="assets/favicon.ico" />
+	<title>TP Phaser : Montage du robot 2</title>
+	<link rel="stylesheet" href="assets/style.css">
+	<script src="assets/phaser.min.js"></script>
+</head>
+
+<body>
+
+	<script>
+
+		var config = {
+			title: 'TP Phaser : Montage du robot 2',
+			version: '1.0',
+			width: 800,
+			height: 600,
+			backgroundColor: 'd0d0d0',
+			scene: { preload: preload, create: create }
+		};
+
+		var game = new Phaser.Game(config);
+
+		var partsNames = ['head', 'leftArm', 'rightArm', 'feet'];
+
+		var partDisplay;
+
+		function preload() {
+			this.load.image('body', 'assets/sprites/robot_body.png');
+			this.load.image('head', 'assets/sprites/robot_head.png');
+			this.load.image('leftArm', 'assets/sprites/left_arm.png');
+			this.load.image('rightArm', 'assets/sprites/right_arm.png');
+			this.load.image('feet', 'assets/sprites/robot_feet.png');
+		}
+
+		function create() {
+			// Texte
+			partDisplay = this.add.text(10, 10, '-', {
+				fontFamily: 'Arial',
+				fontSize: 32,
+				color: 'black'
+			});
+
+			// Ajout du corps
+			this.add.sprite(game.config.width / 2, game.config.height / 2, 'body');
+
+			// Ajout des pièces
+			for (let i = 0; i < partsNames.length; i++) {
+				let part = this.add.sprite(
+					Phaser.Math.RND.between(0, game.config.width),
+					Phaser.Math.RND.between(0, game.config.height),
+					partsNames[i]
+				);
+				part.name = partsNames[i];
+				part.setInteractive({ cursor: 'crosshair', pixelPerfect: true });
+				part.on('pointerover', display);
+				part.on('pointerout', function () { partDisplay.setText('-'); });
+			}
+		}
+
+		function display(e) {
+			partDisplay.setText(this.name);
+		}
+
+	</script>
+
+</body>
+
+</html>
