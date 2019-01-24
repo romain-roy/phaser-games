@@ -6,8 +6,9 @@ objets = {
 		état: "frais",
 		x: 150,
 		y: 370,
+		mobile: true,
 		image: {
-			src: "assets/oeuf.png",
+			src: "assets/oeufs.png",
 			dimX: 60,
 			dimY: 60,
 			clés: 2
@@ -20,6 +21,7 @@ objets = {
 		état: "plein",
 		x: 680,
 		y: 335,
+		mobile: true,
 		image: {
 			src: 'assets/lait.png',
 			dimX: 60,
@@ -34,6 +36,7 @@ objets = {
 		état: "neuf",
 		x: 210,
 		y: 360,
+		mobile: true,
 		image: {
 			src: 'assets/farine.png',
 			dimX: 60,
@@ -48,6 +51,7 @@ objets = {
 		état: "propre",
 		x: 350,
 		y: 430,
+		mobile: true,
 		image: {
 			src: 'assets/spatule.png',
 			dimX: 90,
@@ -62,6 +66,7 @@ objets = {
 		état: "propre",
 		x: 400,
 		y: 380,
+		mobile: true,
 		image: {
 			src: 'assets/saladier.png',
 			dimX: 120,
@@ -72,15 +77,16 @@ objets = {
 	moule: {
 		nom: "moule",
 		type: "ustensile",
-		états: ["vide", "plein", "cuit", "auFour"],
+		états: ["vide", "plein", "cuit", "auFour", "brulé"],
 		état: "vide",
 		x: 550,
 		y: 400,
+		mobile: true,
 		image: {
 			src: 'assets/moule.png',
 			dimX: 120,
-			dimY: 90,
-			clés: 4
+			dimY: 150,
+			clés: 5
 		}
 	},
 	four: {
@@ -118,6 +124,7 @@ objets = {
 		état: 'plein',
 		x: 70,
 		y: 370,
+		mobile: true,
 		image: {
 			src: 'assets/sucre.png',
 			dimX: 60,
@@ -132,6 +139,7 @@ objets = {
 		état: 'plein',
 		x: 130,
 		y: 440,
+		mobile: true,
 		image: {
 			src: 'assets/miel.png',
 			dimX: 40,
@@ -146,6 +154,7 @@ objets = {
 		état: 'vide',
 		x: 680,
 		y: 440,
+		mobile: true,
 		image: {
 			src: 'assets/casserole.png',
 			dimX: 90,
@@ -160,6 +169,7 @@ objets = {
 		état: 'plein',
 		x: 180,
 		y: 430,
+		mobile: true,
 		image: {
 			src: 'assets/épices.png',
 			dimX: 20,
@@ -174,6 +184,7 @@ objets = {
 		état: 'vide',
 		x: 270,
 		y: 420,
+		mobile: true,
 		image: {
 			src: 'assets/verre_doseur.png',
 			dimX: 60,
