@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<script src="assets/phaser.min.js"></script>
+	<script src="europe.js"></script>
+</head>
+
+<body>
+
+	<script>
+
+		var config = {
+			title: 'Europe',
+			version: '1.0',
+			width: 800,
+			height: 600,
+			backgroundColor: 'CFF7FD',
+			scene: { preload: preload, create: create }
+		};
+
+		var game = new Phaser.Game(config);
+
+		var cles = Object.keys(pays);
+
+		var texteNom, texteScore, score, correct, incorrect, paysQuestion;
+
+		function preload() {
+			this.load.image('europe', 'assets/europe.png');
+			for (let i = 0; i < cles.length; i++)
+				this.load.image(cles[i], 'assets/flags/' + pays[cles[i]].sprite);
+			this.load.audio('correct', 'assets/correct.mp3');
+			this.load.audio('incorrect', 'assets/incorrect.mp3');
+		}
+
+		function create() {
+			this.add.image(0, 0, 'europe').setOrigin(0, 0);
+
+			correct = this.sound.add('correct');
+			incorrect = this.sound.add('incorrect');
+
+			score = 0;
+
+			texteNom = this.add.text(10, 5, '', {
+				fontFamily: 'Arial',
+				fontSize: 32,
+				color: '#000'
+			});
+
+			texteScore = this.add.text(10, 595, '0', {
+				fontFamily: 'Arial',
+				fontSize: 32,
+				color: '#000'
+			}).setOrigin(0, 1);
+
+			for (let i = 0; i < cles.length; i++) {
+				let sprite = this.add.sprite(pays[cles[i]].position.x, pays[cles[i]].position.y, cles[i]);
+				sprite.setDisplaySize(40, 40);
+				sprite.setInteractive({ cursor: 'pointer' });
+				sprite.on('pointerdown', function () {
+					if (pays[cles[i]].nomFR == paysQuestion) {
+						correct.play();
+						score++;
+					} else {
+						incorrect.play();
+						score = 0;
+					}
+					texteScore.setText(score);
+					paysAleatoire();
+				}, sprite);
+			}
+
+			paysAleatoire();
+		}
+
+		function paysAleatoire() {
+			let rand = Phaser.Utils.Array.GetRandom(cles);
+			paysQuestion = pays[rand].nomFR;
+			texteNom.setText(paysQuestion);
+		}
+
+	</script>
+
+</html>

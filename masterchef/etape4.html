@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="favicon.ico" />
+	<title>TP Phaser : Masterchef</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="phaser.min.js"></script>
+	<script src="objets.min.js"></script>
+	<script src="matrice.min.js"></script>
+</head>
+
+<body>
+
+	<script>
+
+		var config = {
+			title: 'TP Phaser : Masterchef',
+			version: '4.0',
+			width: 800,
+			height: 600,
+			backgroundColor: 'ffffff',
+			scene: { preload: preload, create: create },
+			physics: { default: 'arcade', arcade: { debug: false } }
+		};
+
+		var game = new Phaser.Game(config);
+
+		const echecs = [
+			"Cela n'a pas fonctionné",
+			"Je n'y arrive pas",
+			"Je ne peux pas faire cela",
+			"Non, impossible"
+		];
+
+		var texte;
+
+		function preload() {
+			this.load.image('cuisine', 'assets/scène.png');
+			for (let o in objets)
+				this.load.spritesheet(o, objets[o].image.src, {
+					frameWidth: objets[o].image.dimX,
+					frameHeight: objets[o].image.dimY
+				});
+		}
+
+		function create() {
+			this.add.image(0, 0, 'cuisine').setOrigin(0, 0);
+
+			texte = this.add.text(10, 590, '', {
+				fontFamily: 'Arial',
+				fontSize: 32,
+				color: '#000'
+			}).setOrigin(0, 1);
+			let utiliser = null;
+			let sprites = this.add.group();
+
+			for (let o in objets) {
+				let sprite = this.add.sprite(objets[o].x, objets[o].y, o, 0);
+
+				sprite.clé = o;
+				sprite.nom = objets[o].nom;
+				sprite.état = objets[o].état;
+				sprite.états = objets[o].états;
+				sprite.reset = function () {
+					this.setPosition(objets[o].x, objets[o].y);
+				}
+
+				sprite.setInteractive({ cursor: 'pointer' });
+				this.physics.world.enable(sprite);
+				sprites.add(sprite);
+
+				if (objets[o].mobile)
+					this.input.setDraggable(sprite);
+				else
+					sprite.on('pointerdown', function () {
+						let objet = this.clé + '/' + this.état;
+						console.log('Action sur ' + objet);
+						let action = interactions[objet]['self'](this);
+						texte.setText(action);
+						this.setFrame(this.états.indexOf(this.état));
+					}, sprite);
+			}
+
+			this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+				gameObject.x = dragX;
+				gameObject.y = dragY;
+			});
+
+			this.input.on('dragstart', function (pointer, gameObject) {
+				gameObject.setDepth(1);
+			});
+
+			this.input.on('dragend', function (pointer, gameObject) {
+				this.physics.overlap(gameObject, sprites, function (me, other) {
+					let source = me.clé + '/' + me.état;
+					let cible = other.clé + '/' + other.état;
+					console.log('Interaction entre ' + source + ' et ' + cible);
+					try {
+						let action = interactions[source][cible](me, other);
+						texte.setText(action);
+						me.setFrame(me.états.indexOf(me.état));
+						other.setFrame(other.états.indexOf(other.état));
+					} catch (err) {
+						texte.setText(Phaser.Math.RND.pick(echecs));
+					}
+				}, null, this);
+				gameObject.reset();
+				gameObject.setDepth(0);
+			}, this);
+		}
+
+	</script>
+
+</body>
+
+</html>

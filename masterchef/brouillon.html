@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<script src="objets.min.js"></script>
+<script src="matrice.min.js"></script>
+<script language="javascript">
+
+	var config = {
+		type: Phaser.AUTO,
+		width: 800,
+		height: 600,
+		backgroundColor: 'd0d0d0',
+		parent: 'canvas',
+		scene: {
+			preload: preload,
+			create: create,
+		},
+		physics: {
+			default: 'arcade',
+			arcade: {
+				debug: false
+			}
+		},
+		version: '1.0'
+	};
+
+	var game = new Phaser.Game(config);
+
+	function preload() {
+
+		for (o in objets) {
+			var objet = objets[o];
+			this.load.spritesheet(
+				o,
+				objet.image.src,
+				{
+					frameWidth: objet.image.dimX,
+					frameHeight: objet.image.dimY,
+					endFrame: objet.image.clés
+				}
+			);
+		}
+
+		this.load.image('cuisine', 'assets/scène.png');
+
+	}
+
+	var zoneTexte;
+
+	var echecs = [
+		"Cela n'a pas fonctionné",
+		"Je n'y arrive pas",
+		"Je ne peux pas faire cela",
+		"Non, impossible"
+	]
+
+	function create() {
+
+		this.add.image(0, 0, 'cuisine').setOrigin(0, 0);
+
+		var style = {
+			font: "32px Arial",
+			fill: "#000000",
+			align: "left",
+			wordWrap: { width: game.config.width - 20 }
+		};
+		zoneTexte = this.add.text(10, 590, "", style).setOrigin(0, 1);
+
+		this.input.mouse.disableContextMenu();
+
+		var sprites = this.add.group();
+		for (o in objets) {
+			var objet = objets[o];
+			if (!objet.dénombrable) {
+				objet.positions = [{ x: objet.x, y: objet.y }];
+			}
+			for (j in objet.positions) {
+				var s = this.add.sprite(0, 0, o);
+				s.posDefaut = { x: objet.positions[j].x, y: objet.positions[j].y };
+				s.reset = function () {
+					this.setPosition(this.posDefaut.x, this.posDefaut.y);
+				}
+				s.reset();
+				s.nom = objet.nom;
+				s.état = objet.états[0];
+				s.états = objet.états;
+				if (objet.type == 'conteneur') {
+					s.contenu = [];
+					s.on('pointerover', function () {
+						if (this.contenu.length == 0)
+							zoneTexte.setText(this.nom + " est vide");
+						else
+							zoneTexte.setText(this.nom + " contient " + this.contenu);
+					}, s);
+				}
+				this.physics.world.enable(s);
+				sprites.add(s);
+				s.setInteractive({ cursor: 'pointer' });
+				this.input.setDraggable(s);
+			}
+		}
+
+		this.input.on('dragstart', function (pointer, gameObject) {
+			gameObject.setDepth(1);
+		});
+
+		this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+			gameObject.x = dragX;
+			gameObject.y = dragY;
+		});
+
+		this.input.on('dragend', function (pointer, gameObject) {
+			var ovrl = this.physics.overlap(gameObject, sprites, function (me, other) {
+				var source = me.texture.key;
+				var cible = other.texture.key;
+				try {
+					var lib = interactions[source][cible](me, other);
+					zoneTexte.setText(lib);
+					//application des nouveaux états
+					me.setFrame(me.états.indexOf(me.état));
+					other.setFrame(other.états.indexOf(other.état));
+				} catch (err) {
+					zoneTexte.setText(Phaser.Math.RND.pick(echecs));
+				}
+			}, null, this);
+			gameObject.reset();
+			gameObject.setDepth(0);
+		}, this);
+
+
+	}
+</script>
+</body>
+
+</html>
