@@ -6,15 +6,20 @@ Plusieurs mini jeux créés avec la bibliothèque JavaScript [Phaser.io](http://
 
 ![Robot](images/robot.png)
 
-2. Masterchef
+2. Europe
 
-![Masterchef](images/masterchef.png)
+![Europe](images/europe.png)
+
 
 3. Monstres
 
 ![Monstres](images/monstres.png)
 
 
-4. Europe
+4. Menu
 
-![Europe](images/europe.png)
+![Menu](images/menu.png)
+
+5. Masterchef
+
+![Masterchef](images/masterchef.png)
