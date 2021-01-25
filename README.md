@@ -1,6 +1,6 @@
 # Mini jeux créés avec Phaser
 
-Plusieurs mini jeux créés avec la bibliothèque JavaScript [Phaser.io](http://phaser.io/).
+Plusieurs mini jeux créés avec la bibliothèque JavaScript [Phaser.io](https://phaser.io/).
 
 1. Robot
 
